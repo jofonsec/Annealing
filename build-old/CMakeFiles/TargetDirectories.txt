@@ -1,0 +1,11 @@
+/home/jfonseca/GitHub/Annealing/build/CMakeFiles/rebuild_cache.dir
+/home/jfonseca/GitHub/Annealing/build/CMakeFiles/edit_cache.dir
+/home/jfonseca/GitHub/Annealing/build/src/CMakeFiles/rebuild_cache.dir
+/home/jfonseca/GitHub/Annealing/build/src/CMakeFiles/edit_cache.dir
+/home/jfonseca/GitHub/Annealing/build/src/CMakeFiles/lDiscovery.dir
+/home/jfonseca/GitHub/Annealing/build/application/CMakeFiles/rebuild_cache.dir
+/home/jfonseca/GitHub/Annealing/build/application/CMakeFiles/edit_cache.dir
+/home/jfonseca/GitHub/Annealing/build/application/CMakeFiles/SA.dir
+/home/jfonseca/GitHub/Annealing/build/datos/CMakeFiles/rebuild_cache.dir
+/home/jfonseca/GitHub/Annealing/build/datos/CMakeFiles/edit_cache.dir
+/home/jfonseca/GitHub/Annealing/build/datos/CMakeFiles/instalar.dir

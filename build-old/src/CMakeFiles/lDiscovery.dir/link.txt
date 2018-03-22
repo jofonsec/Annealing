@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib/liblDiscovery.a  CMakeFiles/lDiscovery.dir/localizacionEvalPenal.o CMakeFiles/lDiscovery.dir/escenario.o
+/usr/bin/ranlib ../lib/liblDiscovery.a

@@ -1,40 +1,79 @@
 #include <eo>
+#include <ga.h>
 #include <Individuo.h>
 #include <IndiInit.h>
-#include <localizacionEval.h>
-#include <localizacionEvalPenal.h>
-#include <individuoCruza.h>
-#include <IndiSwapMutation.h>
-#include <individuoMutacion.h>
 #include <escenario.h>
 #include <sys/time.h>
 
+// Funcion de Fitness
+#include <localizacionEvalPenal.h>
+#include <eval/moFullEvalByModif.h>
+#include <eval/moFullEvalByCopy.h>
 
+//Vecinos y vecindario
+#include <problems/permutation/moSwapNeighbor.h>
+//#include <problems/permutation/moSwapNeighborhood.h>
+#include <moSwapNeighborhood.h>
+
+#include <problems/permutation/moShiftNeighbor.h>
+#include <neighborhood/moRndWithReplNeighborhood.h>
+
+//Componentes del algoritmo
+#include <coolingSchedule/moCoolingSchedule.h>
+
+//Algoritmo
+#include <algo/moSA.h>
+
+//comparador
+#include <comparator/moSolNeighborComparator.h>
+
+//continuators
+#include <continuator/moTrueContinuator.h>
+#include <continuator/moCheckpoint.h>
+#include <continuator/moFitnessStat.h>
+#include <utils/eoFileMonitor.h>
+#include <continuator/moCounterMonitorSaver.h>
+
+typedef moSwapNeighbor<Individuo> swapNeighbor ; //swap Neighbor
+typedef moSwapNeighborhood<Individuo> swapNeighborhood; //classical swap Neighborhood
+
+typedef moShiftNeighbor<Individuo> shiftNeighbor; //shift Neighbor
+typedef moRndWithReplNeighborhood<shiftNeighbor> rndShiftNeighborhood; //rnd shift Neighborhood (Indexed)
 
 
 int main (int argc, char* argv[]){
 
 //Primero se debe definir un parser que lee desde la linea de comandos o un archivo
     eoParser parser(argc, argv);
+
 //Se definen los parametros, se leen desde el parser y le asigna el valor
+    unsigned seed = parser.createParam(unsigned(time(0)), "Semilla", "semilla de numeros aleatorios", 'G').value();
     //Datos necesarios del escenario de prueba
     double _min = parser.createParam((double)(0.0), "ValorMinimo", "Delimitacion area de trabajo",'M',"Parametros Escenario").value();
-    double _max = parser.createParam((double)(20.0), "ValorMaximo", "Delimitacion area de trabajo",'S',"Parametros Escenario").value();
-    unsigned int NoAnclas = parser.createParam((unsigned int)(10), "Anclas", "Numero de nodos anclas",'A',"Parametros Escenario").value();
-    unsigned int nodos = parser.createParam((unsigned int)(100), "Nodos", "Total de nodos",'N',"Parametros Escenario").value();
-    double radio = parser.createParam((double)(5), "Radio", "Radio de comunicacion",'R',"Parametros Escenario").value();
+    double _max = parser.createParam((double)(200.0), "ValorMaximo", "Delimitacion area de trabajo",'S',"Parametros Escenario").value();
+    unsigned int NoAnclas = parser.createParam((unsigned int)(20), "Anclas", "Numero de nodos anclas",'A',"Parametros Escenario").value();
+    unsigned int nodos = parser.createParam((unsigned int)(120), "Nodos", "Total de nodos",'N',"Parametros Escenario").value();
+    double radio = parser.createParam((double)(40), "Radio", "Radio de comunicacion",'R',"Parametros Escenario").value();
 
-    double DisReal[200][200];
+    double DisReal[500][500];
     double vecAnclas[NoAnclas*2];
 
 //Configuracion parametros algoritmo
     unsigned int POP_SIZE = parser.createParam((unsigned int)(100), "PopSize", "Tamano de la poblacion",'P',"Parametros Algoritmo").value();
-    unsigned int numberGeneration = parser.createParam((unsigned int)(1000), "MaxGen", "Criterio de parada, Numero maximo de generaciones",'G',"Parametros Algoritmo").value();
+    unsigned int numberGeneration = parser.createParam((unsigned int)(10000), "MaxGen", "Criterio de parada, Numero maximo de generaciones",'G',"Parametros Algoritmo").value();
     unsigned int Nc = parser.createParam((unsigned int)(2), "Nc", "Constante del operador SBX",'C',"Parametros Algoritmo").value();
-    double Pcruza = parser.createParam((double)(0.87), "Pcruza", "Probabilidad de cruzamiento SBX",'X',"Parametros Algoritmo").value();
-    double Pmutation = parser.createParam((double)(0.85), "Pmutacion", "Probabilidad de mutacion de la encapsulacion de SVN y Swap",'Y',"Parametros Algoritmo").value();
-    double Pmutation1 = parser.createParam((double)(0.85), "Pmutacion1", "Probabilidad de mutacion de SVN",'Z',"Parametros Algoritmo").value();
-    double Pmutation2 = parser.createParam((double)(0.5), "Pmutacion2", "Probabilidad de mutacion de Swap",'W',"Parametros Algoritmo").value();
+    double Alpha = parser.createParam((double)(0.5), "Alpha", "Constante del operador Aritmetico AX",'C',"Parametros Algoritmo").value();
+    float preferencia = parser.createParam((float)(0.5), "Preferencia", "Constante del operador Uniforme, define el sesgo",'C',"Parametros Algoritmo").value();
+    double epsilon = parser.createParam((double)(5), "Epsilon", "Rango de mutación",'F',"Parametros Algoritmo").value();
+    double P_change = parser.createParam((double)(0.79), "P_cambio", "Probabilidad de que mute el gen",'E',"Parametros Algoritmo").value();
+    double PmutationA = parser.createParam((double)(0.87), "P-SVN", "Probabilidad de mutacion SVN",'X',"Parametros Algoritmo").value();
+    double PmutationB = parser.createParam((double)(0.85), "P-SWAP", "Probabilidad de mutacion SWAP",'Y',"Parametros Algoritmo").value();
+    double PmutationC = parser.createParam((double)(0.85), "P-UM", "Probabilidad de mutacion de UM",'Z',"Parametros Algoritmo").value();
+    double PmutationT = parser.createParam((double)(0.5), "P-TotalM", "Probabilidad de mutacion del encapsulamiento",'W',"Parametros Algoritmo").value();
+    double PcruzaA = parser.createParam((double)(0.5), "P-SBX", "Probabilidad de cruzamiento operador SBX",'H',"Parametros Algoritmo").value();
+    double PcruzaB = parser.createParam((double)(0.5), "P-AX", "Probabilidad de cruzamiento operador AX",'J',"Parametros Algoritmo").value();
+    double PcruzaC = parser.createParam((double)(0.5), "P-UX", "Probabilidad de cruzamiento operador UX",'I',"Parametros Algoritmo").value();
+    double PcruzaT = parser.createParam((double)(0.5), "P-TotalC", "Probabilidad de cruzamiento del encapsulamiento",'B',"Parametros Algoritmo").value();
     double sizeTorneo = parser.createParam((double)(8), "SizeTorneo", "Tamano del torneo para seleccion de individuos",'L',"Parametros Algoritmo").value();
     double sizeElist = parser.createParam((double)(2), "SizeElist", "Cantidad de individuos que se conservan",'B',"Parametros Algoritmo").value();
     double sizeTorneo1 = parser.createParam((double)(2), "SizeTorneo1", "Tamano del torneo para seleccion de individuos del elitismo",'Q',"Parametros Algoritmo").value();
@@ -47,17 +86,22 @@ int main (int argc, char* argv[]){
     std::string InPut = parser.createParam(std::string("Estadistica.txt"), "Input", "Archivo que contiene el Fitness, Media, DevStand",'o',"Salida - Grafica").value();
     bool graficaGnuplot = parser.createParam((bool)(0), "Gnuplot", "Grafica el Fitness y Media, 0 desactivado y 1 activado",'g',"Salida - Grafica").value();
 
+// El nombre del archivo status donde todos los parametros seran guardados
+    std::string str_status = parser.ProgramName() + ".status"; // default value
+    std::string statusName = parser.createParam(str_status, "status","Status file",'S', "Persistence" ).value();
+
+    std::string loadName = parser.createParam(std::string(""), "Carga","Se restaura desde un archivo guardado",'L', "Persistence" ).value();
+
 //Termina la ejecucion al consultar la ayuda
-    if (parser.userNeedsHelp())
-         {
-             parser.printHelp(std::cout);
-             exit(1);
+    if (parser.userNeedsHelp()){
+        parser.printHelp(std::cout);
+        exit(1);
          }
-//Verifica el ingreso de las probabilidades
-    if ( (Pcruza < 0) || (Pcruza > 1) ) throw std::runtime_error("Pcruza Invalido");
-    if ( (Pmutation < 0) || (Pmutation > 1) ) throw std::runtime_error("Pmutation encapsulaci�n Invalido");
-    if ( (Pmutation1 < 0) || (Pmutation1 > 1) ) throw std::runtime_error("Pmutation de SVN Invalido");
-    if ( (Pmutation2 < 0) || (Pmutation2 > 1) ) throw std::runtime_error("Pmutation de Swap Invalido");
+
+    if (statusName != ""){
+        std::ofstream os(statusName.c_str());
+        os << parser;	// and you can use that file as parameter file
+         }
 
 //Parametro de tiempo
     struct timeval ti, tf;
@@ -75,73 +119,11 @@ int main (int argc, char* argv[]){
 
 /**--------------------------------------------------------------**/
 
-//Define la representaci�n (Individuo)
-    Individuo cromosoma;
+//Define la representacion (Individuo)
+    Individuo solucion;
 
-//Para la inicializaci�n del cromosoma, primero se debe definir como se generaran los genes
-//Se utilizara un generador uniforme, (valor min, valor max)
-    eoUniformGenerator<double> uGen(_min, _max);
-
-//Crear el inicializador para los cromosomas, llamado random
-    IndiInit random(nodos*2,uGen);
-
-//Generar una subclase de la clase de la funci�n de evaluaci�n
+//Generar una subclase de la clase de la funcion de evaluacion
     localizacionEvalPenal Fitness;
-
-//Criterio de parada
-    eoGenContinue<Individuo> parada(numberGeneration);
-
-//Es otro criterio de parada en el cual se define el minimo de generaciones y cuantas generaciones sin mejoras
-    //eoSteadyFitContinue<Individuo> parada(10,2);
-
-/** CRUZA **/
-
-    // Generar los limites para cada gen
-    std::vector<double> min_b;
-    std::vector<double> max_b;
-    for(int i=0; i<nodos*2; i++) {
-            min_b.push_back(_min);
-            max_b.push_back(_max);
-        }
-    eoRealVectorBounds bounds(min_b, max_b);
-
-    //Inicializar operador de cruce SBX
-    individuoCruza crossover(bounds, Nc);
-
-    //Cargar cantidad nodos anclas al operador
-    crossover.setNoAnclas(NoAnclas);
-
-/** MUTACION **/
-    //Subclase de mutacion paper IEEE
-    individuoMutacion mutationA(NoAnclas,numberGeneration,nodos,_min,_max);
-
-    //Mutacion incluida en EO, permite llegar mas rapido a un fitness de 600
-    individuoMutacion0 mutationB;
-
-    //Combina operadores de mutacion con su respectivo peso
-    eoPropCombinedMonOp<Individuo> mutation(mutationA,Pmutation1);
-    mutation.add(mutationB, Pmutation2);
-
-//Define un objeto de encapsulaci�n (it contains, the crossover, the crossover rate, the mutation and the mutation rate) -> 1 line
-    eoSGATransform<Individuo> encapsulacion(crossover, Pcruza, mutation, Pmutation); //0.87
-
-//Define el m�todo de selecci�n, selecciona un individuo por cada torneo (en el parentesis se define el tama�o del torneo)
-    eoDetTournamentSelect<Individuo> torneo(sizeTorneo);
-
-//Define un "eoSelectPerc" con el torneo como parametro por defecto (permite seleccionar el mejor individuo)
-    eoSelectPerc<Individuo> seleccion(torneo);
-
-//Define una estrategia de reemplazo por cada generaci�n
-    //eoGenerationalReplacement<Individuo> reemplazo;
-
-////Otra estrategia de reemplazo con elitismo
-    eoElitism<Individuo> reemplazo(sizeElist,false); //antes 0.6
-
-   //Para utilizar eoElitism se define un eoDetTournamentTruncate para seleccionar los individuos para el elitismo
-        eoDetTournamentTruncate<Individuo> Trunca(sizeTorneo1);// antes 2
-
-//Define una poblacion de Individuos
-    eoPop<Individuo> poblacion;
 
 //Cargar la matriz de distancias, cantidad nodos anclas y total de nodos
     Fitness.guardarDisReal(DisReal, NoAnclas, nodos, radio);
@@ -149,88 +131,85 @@ int main (int argc, char* argv[]){
 //Cargar posiciones nodos anclas
     Fitness.guardarAnclas(vecAnclas);
 
-//Llena la poblaci�n y evalua cada cromosoma
-    for(int i=0 ; i<POP_SIZE ; i++)
-    {
-        random(cromosoma);
-        Fitness(cromosoma);
-        poblacion.push_back(cromosoma);
-    }
+// Operador de evaluacion para una solucion vecina
+    moFullEvalByCopy<swapNeighbor> swapEval(Fitness);
 
-//Imprime la poblaci�n
-    //poblacion.printOn(std::cout);
+    moFullEvalByCopy<shiftNeighbor> shiftEval(Fitness);
+
+//Vecinos y vecindario
+    swapNeighborhood swapNH;
+
+    rndShiftNeighborhood rndShiftNH((nodos*2-1) * (nodos*2-1));
+
+//Tasa de enfriamiento (Temperatura inicial, factor decrecimiento, numero de pasos sin decrecimiento, Temperatura final)
+    moSimpleCoolingSchedule<Individuo> coolingSchedule(10000, 0.88, 100000, 0.01);
+
+//Comparador de Vecinos
+    moSolNeighborComparator<swapNeighbor> solComparator;
 
 //Imprime un salto de linea
     std::cout<< std::endl;
 
-//Contenedor de clases
-    eoCheckPoint<Individuo> PuntoChequeo(parada);
+//Para la inicializaci�n del solucion, primero se debe definir como se generaran los genes y la semilla
+    rng.reseed(seed);
+//Se utilizara un generador uniforme, (valor min, valor max)
+    eoUniformGenerator<double> uGen(_min, _max);
+//Crear el inicializador para los solucions, llamado random
+    IndiInit random(nodos*2,uGen);
+    random(solucion);
+    Fitness(solucion);
 
-//Cargar el valor de la generacion actual al operador de mutaci�n
-    //Se inicializa el contador de generaciones
-    eoIncrementorParam<unsigned> generationCounter("Gen.");
-    //Se carga el contador de generaciones al operador de mutaci�n
-    mutationA.setGen(& generationCounter);
-    //Se carga el contador de generaciones al objeto eoCheckpoint para contar el n�mero de generaciones
-    PuntoChequeo.add(generationCounter);
+//Solucion inicial
+    std::cout << "Solucion Inicial:" << std::endl;
+    std::cout << solucion << std::endl << std::endl;
+
+//Uso del vecino y vecindario SWAP
+    // std::cout << "SWAP NEIGHBORHOOD" << std::endl;
+    // std::cout << "-----------------" << std::endl;
+    // std::cout << "Neighbors List: (Neighbor -> fitness)" << std::endl;
+    //
+    // swapNeighbor n1;
+    // swapNH.init(solucion, n1);
+    // swapEval(solucion,n1);
+    // n1.print();
+    // while (swapNH.cont(solucion)) {
+    //     swapNH.next(solucion, n1);
+    //     swapEval(solucion,n1);
+    //     n1.print();
+    // }
+
+//Checkpointing
+    moTrueContinuator<swapNeighbor> continuator;//always continue
+    moCheckpoint<swapNeighbor> checkpoint(continuator);
+    moFitnessStat<Individuo> fitStat;
+    checkpoint.add(fitStat);
+    eoFileMonitor monitor("fitness.out", "");
+    moCounterMonitorSaver countMon(100, monitor);
+    checkpoint.add(countMon);
+    monitor.add(fitStat);
 
 
-/** Guardar datos de la poblaci�n en archivos **/
-    //Genera un archivo para guardar parametros
-    eoState estado;
-    //Guardar todo lo que necesites a la clase hija estado
-    estado.registerObject(poblacion);
-    //estado.registerObject(parser);
-    //Guarda el tiempo de ejecucion desde la primera generacion
-    eoTimeCounter time;
-    PuntoChequeo.add(time);
-    //Define cada cuantas generaciones se guarda la poblacion
-    eoCountedStateSaver GuardarEstado(setGeneracion,estado,"generacion");
-    //Siempre se debe agregar a la clase hija de eoCheckPoint para que se ejecute en cada generacion
-    PuntoChequeo.add(GuardarEstado);
-
-//Guardar algunas estadisticas de la poblacion
-    //Muestra el mejor fitness de cada generaci�n
-    eoBestFitnessStat<Individuo> Elmejor("Mejor Fitness");
-    //La media y stdev
-    eoSecondMomentStats<Individuo> SegundoStat;
-    //Se agrega al eoCheckPoint
-    PuntoChequeo.add(Elmejor);
-    PuntoChequeo.add(SegundoStat);
-    // Guarda los parametros a un archivo
-    eoFileMonitor fileMonitor("stats.xg", " ");
-    PuntoChequeo.add(fileMonitor);
-    fileMonitor.add(generationCounter); //Numero de generaciones
-    fileMonitor.add(time);              //Tiempo total de ejecucion desde la primera generacion
-    fileMonitor.add(Elmejor);           //Mejor fitness
-    fileMonitor.add(SegundoStat);       //Media y desviacion estandar
-
-///** Grafica **/
-//    eoFileMonitor fileMonitor1(InPut, " ");
-//    fileMonitor1.add(Elmejor);           //Mejor fitness
-//    fileMonitor1.add(SegundoStat);       //Media y desviacion estandar
-//    PuntoChequeo.add(fileMonitor1);      //Agrega al checkpoint
-//    GnuplotMonitor grafica(InPut,graficaGnuplot);       //Grafica el fitness y la media
-//    grafica.setGen(& generationCounter); //Carga la generacion
-//    PuntoChequeo.add(grafica);
-///**------------------------------------------**/
-
-// Incializa el algoritmo genetico secuencial
-    eoEasyEA<Individuo> algoritmo(PuntoChequeo, Fitness, seleccion, encapsulacion, reemplazo, Trunca);
+// Incializa el algoritmo Simulated Annealing
+    moSA<swapNeighbor> RecocidoSimulado(swapNH, Fitness, swapEval, coolingSchedule, solComparator, checkpoint);
+    //moSA<shiftNeighbor> local(rndShiftNH, Fitness, shiftEval);
 
 //Tiempo inicial
     gettimeofday(&ti, NULL);
 
 //Corre el algoritmo en la poblacion inicializada
-    algoritmo(poblacion);
+    RecocidoSimulado(solucion);
+    //local(solucion);
 
 //Tiempo Final
     gettimeofday(&tf, NULL);
 
     std::cout << std::endl;
 
-//Imprime el mejor cromosoma
-    poblacion.best_element().printOn(std::cout);
+    std::cout << "Solucion Final: " << solucion << std::endl ;
+    std::cout << "#########################################" << std::endl;
+
+//Imprime el mejor solucion
+    //poblacion.best_element().printOn(std::cout);
 
     std::cout << std::endl;
     std::cout << std::endl;
@@ -239,6 +218,8 @@ int main (int argc, char* argv[]){
     tiempo = (tf.tv_sec - ti.tv_sec)*1000 + (tf.tv_usec - ti.tv_usec)/1000.0;
 
     std::cout <<"Tiempo de ejecucion en milisegundos: " << tiempo << std::endl;
+    std::cout <<"Tiempo de ejecucion en segundos: " << tiempo/1000.0 << std::endl;
+    std::cout <<"Tiempo de ejecucion en minutos: " << (tiempo/1000.0)/60 << std::endl;
 
     std::cout << std::endl;
 //Se grafica el error y todos los nodos
@@ -247,6 +228,4 @@ int main (int argc, char* argv[]){
 
   std::cout << std::endl;
   return EXIT_SUCCESS;
-
-
 }

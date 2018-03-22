@@ -35,13 +35,13 @@ int contador =0;
         }
     }
     // Error2 0<==>1200 and Error1 0<==>200 and Error3 0<==>600
-    ErrorTotal = Error2 + 10 * Error1 + 4 * Error3;
+    ErrorTotal = Error2/10 + 3 * Error1 + 8 * Error3;
 
     // Finalmente se debe agregar el fitness al cromosoma
     _Individuo.fitness(ErrorTotal);
 }
 
-void localizacionEvalPenal::guardarDisReal(double _DisReal[200][200], int _NoAnclas, int _nodos, double _radio){
+void localizacionEvalPenal::guardarDisReal(double _DisReal[500][500], int _NoAnclas, int _nodos, double _radio){
     nodos = _nodos;
     NoAnclas = _NoAnclas;
     radio = _radio;
@@ -53,7 +53,7 @@ void localizacionEvalPenal::guardarDisReal(double _DisReal[200][200], int _NoAnc
     }
 }
 
-void localizacionEvalPenal::guardarAnclas(double _vecAnclas[40]){
+void localizacionEvalPenal::guardarAnclas(double _vecAnclas[500]){
 
      for (int i=0 ; i<NoAnclas*2 ; i++){
         vecAnclas[i] = _vecAnclas[i];

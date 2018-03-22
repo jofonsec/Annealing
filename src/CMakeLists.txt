@@ -13,11 +13,8 @@
 #3)Se deben agregar los propios codigos ".cpp" (uno elige el nombre de la lista)
 
 	SET(CODIGOS
-                	localizacionEval.cpp
 			localizacionEvalPenal.cpp
 			escenario.cpp
-			individuoCruza.cpp
-			individuoMutacion.cpp
 	)
 
 #4)Declara tu propia libreria: todos los archivos ".cpp" que estan definidos en la lista (uno puede elegir el nombre de la libreria)

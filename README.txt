@@ -24,8 +24,6 @@ apt-get install gnuplot-x11
 > make install //Para cargar los archivos de configuracion y escenarios de pruebas
 > cd application //Es la carpeta donde se compila el codigo
 
-###Dentro de la carpeta build/application se encuentran las Matriz1(R5), Matriz2(R4), Matriz3(R3), Matriz4(R2). Para ejecutar el algoritmo
-se debe cambiar el nombre de cualquiera de estos archivo por el nombre Matriz.
 ###Para la ejecución es de obligación contar con los archivos: Anclas, Matriz y Allposition (son todas las posiciones reales de todos los nodos, se utiliza solo para motrar los resultados graficamente).
 
 > ./nombrecodigo @nombre.param // Se ejecuta el codigo con el correspondiente archivo de configuración

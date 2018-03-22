@@ -1,0 +1,44 @@
+
+### GENERAL ########################################################################
+# --help=0                                 # -h : Prints this message
+# --stopOnUnknownParam=1                   # Stop if unkown param entered
+# --Semilla=1521683031                     # -G : semilla de numeros aleatorios
+
+### GUARDAR DATOS ##################################################################
+# --setGeneracion=100                      # -T : Cada cuantas generaciones se guarda la poblacion
+# --setTime=0                              # -I : Cada cuantos segundos se guarda la configuracion
+
+### PARAMETROS ALGORITMO ###########################################################
+# --PopSize=100                            # -P : Tamano de la poblacion
+# --MaxGen=10000                           # -G : Criterio de parada, Numero maximo de generaciones
+# --Nc=2                                   # -C : Constante del operador SBX
+# --Alpha=0.5                              # -C : Constante del operador Aritmetico AX
+# --Preferencia=0.5                        # -C : Constante del operador Uniforme, define el sesgo
+# --Epsilon=5                              # -F : Rango de mutación
+# --P_cambio=0.79                          # -E : Probabilidad de que mute el gen
+# --P-SVN=0.87                             # -X : Probabilidad de mutacion SVN
+# --P-SWAP=0.85                            # -Y : Probabilidad de mutacion SWAP
+# --P-UM=0.85                              # -Z : Probabilidad de mutacion de UM
+# --P-TotalM=0.5                           # -W : Probabilidad de mutacion del encapsulamiento
+# --P-SBX=0.5                              # -H : Probabilidad de cruzamiento operador SBX
+# --P-AX=0.5                               # -J : Probabilidad de cruzamiento operador AX
+# --P-UX=0.5                               # -I : Probabilidad de cruzamiento operador UX
+# --P-TotalC=0.5                           # -B : Probabilidad de cruzamiento del encapsulamiento
+# --SizeTorneo=8                           # -L : Tamano del torneo para seleccion de individuos
+# --SizeElist=2                            # -B : Cantidad de individuos que se conservan
+# --SizeTorneo1=2                          # -Q : Tamano del torneo para seleccion de individuos del elitismo
+
+### PARAMETROS ESCENARIO ###########################################################
+# --ValorMinimo=0                          # -M : Delimitacion area de trabajo
+# --ValorMaximo=200                        # -S : Delimitacion area de trabajo
+# --Anclas=20                              # -A : Numero de nodos anclas
+# --Nodos=120                              # -N : Total de nodos
+# --Radio=40                               # -R : Radio de comunicacion
+
+### PERSISTENCE ####################################################################
+# --status=./SA.status                     # -S : Status file
+# --Carga=                                 # -L : Se restaura desde un archivo guardado
+
+### SALIDA - GRAFICA ###############################################################
+# --Input=Estadistica.txt                  # -o : Archivo que contiene el Fitness, Media, DevStand
+# --Gnuplot=0                              # -g : Grafica el Fitness y Media, 0 desactivado y 1 activado

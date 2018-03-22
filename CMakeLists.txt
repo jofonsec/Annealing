@@ -3,12 +3,11 @@
 ######################################################################################
 # check cmake version compatibility
 # Comprobar la version de cmake 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.0)
 
 # Here define your project name
 # Aquí se define el nombre de tu proyecto
-project(MyThesis)
-
+project(Annealing)
 
 #Indica el tipo de librerias que se utilizaran para la compilación el orden es importante
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_RELEASE} -std=c++11 -Wall")
@@ -21,7 +20,7 @@ SET(PACKAGE_NAME "MyThesis" CACHE STRING "Package name" FORCE)
 SET(PACKAGE_VERSION "0.1" CACHE STRING "Package version" FORCE)
 
 # Aquí se define la ubicación de ParadisEO #IMPORTANTE#
-set(PARADISEO_ROOT C:/Users/ESOJ/Documents/GitHub/ParadisEO)
+set(PARADISEO_ROOT /home/jfonseca/GitHub/paradiseo)
 
 # regular expression checking
 #include_regular_expression("^.*$" "^$")
@@ -44,7 +43,7 @@ include(CMakeBackwardCompatibilityCXX)
 include(CheckLibraryExists)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/module")
-find_package(Paradiseo) #El orden es importante
+find_package(Paradiseo COMPONENTS eoutils eo smp) #El orden es importante
 
 include_directories(${PARADISEO_INCLUDE_DIR})
 
