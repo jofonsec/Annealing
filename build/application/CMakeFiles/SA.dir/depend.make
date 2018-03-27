@@ -3,9 +3,10 @@
 
 application/CMakeFiles/SA.dir/Annealing.o: ../src/IndiInit.h
 application/CMakeFiles/SA.dir/Annealing.o: ../src/Individuo.h
+application/CMakeFiles/SA.dir/Annealing.o: ../src/SwapNeighbor.h
+application/CMakeFiles/SA.dir/Annealing.o: ../src/SwapNeighborhood.h
 application/CMakeFiles/SA.dir/Annealing.o: ../src/escenario.h
 application/CMakeFiles/SA.dir/Annealing.o: ../src/localizacionEvalPenal.h
-application/CMakeFiles/SA.dir/Annealing.o: ../src/moSwapNeighborhood.h
 application/CMakeFiles/SA.dir/Annealing.o: ../application/Annealing.cpp
 application/CMakeFiles/SA.dir/Annealing.o: /home/jfonseca/GitHub/paradiseo/eo/src/EO.h
 application/CMakeFiles/SA.dir/Annealing.o: /home/jfonseca/GitHub/paradiseo/eo/src/PO.h
@@ -226,5 +227,4 @@ application/CMakeFiles/SA.dir/Annealing.o: /home/jfonseca/GitHub/paradiseo/mo/sr
 application/CMakeFiles/SA.dir/Annealing.o: /home/jfonseca/GitHub/paradiseo/mo/src/neighborhood/moRndNeighborhood.h
 application/CMakeFiles/SA.dir/Annealing.o: /home/jfonseca/GitHub/paradiseo/mo/src/neighborhood/moRndWithReplNeighborhood.h
 application/CMakeFiles/SA.dir/Annealing.o: /home/jfonseca/GitHub/paradiseo/mo/src/problems/permutation/moShiftNeighbor.h
-application/CMakeFiles/SA.dir/Annealing.o: /home/jfonseca/GitHub/paradiseo/mo/src/problems/permutation/moSwapNeighbor.h
 

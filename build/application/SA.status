@@ -2,7 +2,7 @@
 ### GENERAL ########################################################################
 # --help=0                                 # -h : Prints this message
 # --stopOnUnknownParam=1                   # Stop if unkown param entered
-# --Semilla=1521687763                     # -G : semilla de numeros aleatorios
+# --Semilla=1521956878                     # -G : semilla de numeros aleatorios
 
 ### GUARDAR DATOS ##################################################################
 # --setGeneracion=100                      # -T : Cada cuantas generaciones se guarda la poblacion

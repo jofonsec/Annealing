@@ -11,9 +11,11 @@
 #include <eval/moFullEvalByCopy.h>
 
 //Vecinos y vecindario
-#include <problems/permutation/moSwapNeighbor.h>
-//#include <problems/permutation/moSwapNeighborhood.h>
-#include <moSwapNeighborhood.h>
+#include <AdaptiveMutationNeighbor.h>
+#include <AdaptiveMutationNeighborhood.h>
+
+#include <SwapNeighbor.h>
+#include <SwapNeighborhood.h>
 
 #include <problems/permutation/moShiftNeighbor.h>
 #include <neighborhood/moRndWithReplNeighborhood.h>
@@ -34,8 +36,12 @@
 #include <utils/eoFileMonitor.h>
 #include <continuator/moCounterMonitorSaver.h>
 
-typedef moSwapNeighbor<Individuo> swapNeighbor ; //swap Neighbor
-typedef moSwapNeighborhood<Individuo> swapNeighborhood; //classical swap Neighborhood
+/*Propuesto modificado tesis*/
+typedef AdaptiveMutationNeighbor<Individuo> AdaptiveNeighbor ; //swap Neighbor
+typedef AdaptiveMutationNeighborhood<AdaptiveNeighbor> AdaptiveNeighborhood; //classical swap Neighborhood
+
+typedef SwapNeighbor<Individuo> swapNeighbor ; //swap Neighbor
+typedef SwapNeighborhood<swapNeighbor> swapNeighborhood; //classical swap Neighborhood
 
 typedef moShiftNeighbor<Individuo> shiftNeighbor; //shift Neighbor
 typedef moRndWithReplNeighborhood<shiftNeighbor> rndShiftNeighborhood; //rnd shift Neighborhood (Indexed)
@@ -57,6 +63,7 @@ int main (int argc, char* argv[]){
 
     double DisReal[500][500];
     double vecAnclas[NoAnclas*2];
+    double FitnessIni;
 
 //Configuracion parametros algoritmo
     unsigned int POP_SIZE = parser.createParam((unsigned int)(100), "PopSize", "Tamano de la poblacion",'P',"Parametros Algoritmo").value();
@@ -132,11 +139,15 @@ int main (int argc, char* argv[]){
     Fitness.guardarAnclas(vecAnclas);
 
 // Operador de evaluacion para una solucion vecina
+    moFullEvalByCopy<AdaptiveNeighbor> AdaptiveEval(Fitness);
+
     moFullEvalByCopy<swapNeighbor> swapEval(Fitness);
 
     moFullEvalByCopy<shiftNeighbor> shiftEval(Fitness);
 
 //Vecinos y vecindario
+    AdaptiveNeighborhood adaptiveNeighborhood;
+
     swapNeighborhood swapNH;
 
     rndShiftNeighborhood rndShiftNH((nodos*2-1) * (nodos*2-1));
@@ -145,7 +156,7 @@ int main (int argc, char* argv[]){
     moSimpleCoolingSchedule<Individuo> coolingSchedule(10000, 0.88, 100000, 0.01);
 
 //Comparador de Vecinos
-    moSolNeighborComparator<swapNeighbor> solComparator;
+    moSolNeighborComparator<AdaptiveNeighbor> solComparator;
 
 //Imprime un salto de linea
     std::cout<< std::endl;
@@ -163,6 +174,9 @@ int main (int argc, char* argv[]){
     std::cout << "Solucion Inicial:" << std::endl;
     std::cout << solucion << std::endl << std::endl;
 
+    FitnessIni = solucion.fitness();
+    AdaptiveNeighbor(1,FitnessIni,NoAnclas);
+
 //Uso del vecino y vecindario SWAP
     // std::cout << "SWAP NEIGHBORHOOD" << std::endl;
     // std::cout << "-----------------" << std::endl;
@@ -179,18 +193,18 @@ int main (int argc, char* argv[]){
     // }
 
 //Checkpointing
-    moTrueContinuator<swapNeighbor> continuator;//always continue
-    moCheckpoint<swapNeighbor> checkpoint(continuator);
+    moTrueContinuator<AdaptiveNeighbor> continuator;//always continue
+    moCheckpoint<AdaptiveNeighbor> checkpoint(continuator);
     moFitnessStat<Individuo> fitStat;
     checkpoint.add(fitStat);
     eoFileMonitor monitor("fitness.out", "");
-    moCounterMonitorSaver countMon(100, monitor);
+    moCounterMonitorSaver countMon(10, monitor);
     checkpoint.add(countMon);
     monitor.add(fitStat);
 
 
 // Incializa el algoritmo Simulated Annealing
-    moSA<swapNeighbor> RecocidoSimulado(swapNH, Fitness, swapEval, coolingSchedule, solComparator, checkpoint);
+    moSA<swapNeighbor> RecocidoSimulado(adaptiveNeighborhood, Fitness, AdaptiveEval, coolingSchedule, solComparator, checkpoint);
     //moSA<shiftNeighbor> local(rndShiftNH, Fitness, shiftEval);
 
 //Tiempo inicial
@@ -205,7 +219,8 @@ int main (int argc, char* argv[]){
 
     std::cout << std::endl;
 
-    std::cout << "Solucion Final: " << solucion << std::endl ;
+    std::cout << "Solucion Final:" << std::endl;
+    std::cout << solucion << std::endl << std::endl;
     std::cout << "#########################################" << std::endl;
 
 //Imprime el mejor solucion

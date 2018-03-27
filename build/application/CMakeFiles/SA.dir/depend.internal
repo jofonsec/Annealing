@@ -4,9 +4,10 @@
 application/CMakeFiles/SA.dir/Annealing.o
  ../src/IndiInit.h
  ../src/Individuo.h
+ ../src/SwapNeighbor.h
+ ../src/SwapNeighborhood.h
  ../src/escenario.h
  ../src/localizacionEvalPenal.h
- ../src/moSwapNeighborhood.h
  /home/jfonseca/GitHub/Annealing/application/Annealing.cpp
  /home/jfonseca/GitHub/paradiseo/eo/src/EO.h
  /home/jfonseca/GitHub/paradiseo/eo/src/PO.h
@@ -227,4 +228,3 @@ application/CMakeFiles/SA.dir/Annealing.o
  /home/jfonseca/GitHub/paradiseo/mo/src/neighborhood/moRndNeighborhood.h
  /home/jfonseca/GitHub/paradiseo/mo/src/neighborhood/moRndWithReplNeighborhood.h
  /home/jfonseca/GitHub/paradiseo/mo/src/problems/permutation/moShiftNeighbor.h
- /home/jfonseca/GitHub/paradiseo/mo/src/problems/permutation/moSwapNeighbor.h

@@ -22,6 +22,16 @@ es.h
 eoScalarFitness.h
 -
 
+../src/SwapNeighbor.h
+neighborhood/moBackableNeighbor.h
+-
+
+../src/SwapNeighborhood.h
+SwapNeighbor.h
+-
+neighborhood/moNeighborhood.h
+-
+
 ../src/escenario.h
 vector
 -
@@ -32,12 +42,6 @@ fstream
 Individuo.h
 -
 eoEvalFunc.h
--
-
-../src/moSwapNeighborhood.h
-problems/permutation/moSwapNeighbor.h
--
-neighborhood/moNeighborhood.h
 -
 
 /home/jfonseca/GitHub/Annealing/application/Annealing.cpp
@@ -59,9 +63,9 @@ eval/moFullEvalByModif.h
 -
 eval/moFullEvalByCopy.h
 -
-problems/permutation/moSwapNeighbor.h
+SwapNeighbor.h
 -
-moSwapNeighborhood.h
+SwapNeighborhood.h
 -
 problems/permutation/moShiftNeighbor.h
 -
@@ -2174,9 +2178,5 @@ utils/eoRNG.h
 neighborhood/moBackableNeighbor.h
 -
 neighborhood/moIndexNeighbor.h
--
-
-/home/jfonseca/GitHub/paradiseo/mo/src/problems/permutation/moSwapNeighbor.h
-neighborhood/moBackableNeighbor.h
 -
 
